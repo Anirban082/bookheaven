@@ -42,6 +42,19 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-pnpm-store-
 
+      - name: Create production environment file
+        run: |
+          echo "DATABASE_URL=${{ secrets.DATABASE_URL }}" >> .env.production
+          echo "CLERK_SECRET_KEY=${{ secrets.CLERK_SECRET_KEY }}" >> .env.production
+          echo "CLERK_ENCRYPTION_KEY=${{ secrets.CLERK_ENCRYPTION_KEY }}" >> .env.production
+          echo "STRIPE_SECRET_KEY=${{ secrets.STRIPE_SECRET_KEY }}" >> .env.production
+          echo "STRIPE_WEBHOOK_SECRET=${{ secrets.STRIPE_WEBHOOK_SECRET }}" >> .env.production
+          echo "UPLOADTHING_TOKEN=${{ secrets.UPLOADTHING_TOKEN }}" >> .env.production
+          echo "NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=${{ secrets.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY }}" >> .env.production
+          echo "NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=${{ secrets.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY }}" >> .env.production
+          echo "NEXT_PUBLIC_APP_URL=https://bookheaven.azurewebsites.net" >> .env.production
+          echo "NODE_ENV=production" >> .env.production
+
       - name: Install dependencies
         run: pnpm install --no-frozen-lockfile
 
