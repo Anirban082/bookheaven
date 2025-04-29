@@ -1,7 +1,7 @@
 # Docs for the Azure Web Apps Deploy action: https://github.com/Azure/webapps-deploy
 # More GitHub Actions for Azure: https://github.com/Azure/actions
 
-name: Build and deploy Node.js app to Azure Web App - bookheaven
+name: Build and deploy Node.js app to Azure Web App - booheaven
 
 on:
   push:
@@ -55,14 +55,57 @@ jobs:
           echo "NEXT_PUBLIC_APP_URL=https://booheaven.azurewebsites.net" >> .env.production
           echo "NODE_ENV=production" >> .env.production
 
-      - name: Install dependencies
-        run: pnpm install --no-frozen-lockfile
+      - name: Create startup command file for Azure
+        run: |
+          echo "npm start" > startup.txt
+
+      - name: Install dependencies with legacy peer deps
+        run: pnpm install --no-frozen-lockfile --legacy-peer-deps
 
       - name: Build Next.js app
         run: pnpm build
 
+      - name: Prepare package.json for Azure
+        run: |
+          cp package.json package.json.original
+          jq '.scripts.start = "node server.js" | .dependencies.cmdk = "*"' package.json > package.json.new
+          mv package.json.new package.json
+
+      - name: Create server.js for Azure
+        run: |
+          echo 'const { createServer } = require("http");
+          const { parse } = require("url");
+          const next = require("next");
+          
+          const dev = process.env.NODE_ENV !== "production";
+          const hostname = "0.0.0.0";
+          const port = process.env.PORT || 8080;
+          
+          const app = next({ dev, hostname, port });
+          const handle = app.getRequestHandler();
+          
+          app.prepare().then(() => {
+            createServer(async (req, res) => {
+              try {
+                const parsedUrl = parse(req.url, true);
+                await handle(req, res, parsedUrl);
+              } catch (err) {
+                console.error("Error occurred handling", req.url, err);
+                res.statusCode = 500;
+                res.end("Internal Server Error");
+              }
+            })
+              .once("error", (err) => {
+                console.error(err);
+                process.exit(1);
+              })
+              .listen(port, () => {
+                console.log(`> Ready on http://${hostname}:${port}`);
+              });
+          });' > server.js
+
       - name: Zip artifact for deployment
-        run: zip -r release.zip . -x "node_modules/*" ".*" "*.zip"
+        run: zip -r release.zip . -x "node_modules/*" ".*" "*.zip" "package.json.original"
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4
