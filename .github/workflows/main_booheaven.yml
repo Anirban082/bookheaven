@@ -1,7 +1,7 @@
 # Docs for the Azure Web Apps Deploy action: https://github.com/Azure/webapps-deploy
 # More GitHub Actions for Azure: https://github.com/Azure/actions
 
-name: Build and deploy Node.js app to Azure Web App - booheaven
+name: Build and deploy Node.js app to Azure Web App - bookheaven
 
 on:
   push:
@@ -23,14 +23,33 @@ jobs:
         with:
           node-version: '20.x'
 
-      - name: npm install, build, and test
+      - name: Install pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 10.6.1
+
+      - name: Get pnpm store directory
+        id: pnpm-cache
+        shell: bash
         run: |
-          npm install
-          npm run build --if-present
-          npm run test --if-present
+          echo "STORE_PATH=$(pnpm store path)" >> $GITHUB_OUTPUT
+
+      - name: Setup pnpm cache
+        uses: actions/cache@v3
+        with:
+          path: ${{ steps.pnpm-cache.outputs.STORE_PATH }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-store-
+
+      - name: Install dependencies
+        run: pnpm install --no-frozen-lockfile
+
+      - name: Build Next.js app
+        run: pnpm build
 
       - name: Zip artifact for deployment
-        run: zip release.zip ./* -r
+        run: zip -r release.zip . -x "node_modules/*" ".*" "*.zip"
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4
@@ -68,7 +87,6 @@ jobs:
         id: deploy-to-webapp
         uses: azure/webapps-deploy@v3
         with:
-          app-name: 'booheaven'
+          app-name: 'bookheaven'
           slot-name: 'Production'
           package: .
-          
