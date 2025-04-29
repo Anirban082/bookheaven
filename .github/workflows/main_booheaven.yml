@@ -59,8 +59,8 @@ jobs:
         run: |
           echo "npm start" > startup.txt
 
-      - name: Install dependencies with legacy peer deps
-        run: pnpm install --no-frozen-lockfile --legacy-peer-deps
+      - name: Install dependencies with pnpm
+        run: pnpm install --no-frozen-lockfile --shamefully-hoist
 
       - name: Build Next.js app
         run: pnpm build
@@ -68,7 +68,7 @@ jobs:
       - name: Prepare package.json for Azure
         run: |
           cp package.json package.json.original
-          jq '.scripts.start = "node server.js" | .dependencies.cmdk = "*"' package.json > package.json.new
+          jq '.scripts.start = "node server.js" | .dependencies.cmdk = "^1.0.0" | del(.packageManager) | .resolutions.cmdk = "^1.0.0"' package.json > package.json.new
           mv package.json.new package.json
 
       - name: Create server.js for Azure
