@@ -55,25 +55,17 @@ jobs:
           echo "NEXT_PUBLIC_APP_URL=https://booheaven.azurewebsites.net" >> .env.production
           echo "NODE_ENV=production" >> .env.production
 
-      - name: Create startup command file for Azure
+      - name: Create Azure deployment files
         run: |
-          echo "npm start" > startup.txt
-
-      - name: Install dependencies with pnpm
-        run: pnpm install --no-frozen-lockfile --shamefully-hoist
-
-      - name: Build Next.js app
-        run: pnpm build
-
-      - name: Prepare package.json for Azure
-        run: |
-          cp package.json package.json.original
-          jq '.scripts.start = "node server.js" | .dependencies.cmdk = "^1.0.0" | del(.packageManager) | .resolutions.cmdk = "^1.0.0"' package.json > package.json.new
-          mv package.json.new package.json
-
-      - name: Create server.js for Azure
-        run: |
-          echo 'const { createServer } = require("http");
+          # Create a custom package.json for Azure deployment
+          jq '.packageManager = undefined | .scripts.start = "node server.js" | .dependencies."next-view-transitions" = "0.3.4" | .resolutions = {"next-view-transitions": "0.3.4", "cmdk": "^1.0.0"}' package.json > azure-package.json
+          
+          # Create .npmrc to force installation
+          echo "legacy-peer-deps=true" > .npmrc
+          
+          # Create custom server.js file for Azure
+          cat > server.js << 'EOF'
+          const { createServer } = require("http");
           const { parse } = require("url");
           const next = require("next");
           
@@ -102,10 +94,68 @@ jobs:
               .listen(port, () => {
                 console.log(`> Ready on http://${hostname}:${port}`);
               });
-          });' > server.js
+          });
+          EOF
+          
+          # Create web.config for Azure App Service
+          cat > web.config << 'EOF'
+          <?xml version="1.0" encoding="utf-8"?>
+          <configuration>
+            <system.webServer>
+              <webSocket enabled="false" />
+              <handlers>
+                <add name="iisnode" path="server.js" verb="*" modules="iisnode" />
+              </handlers>
+              <rewrite>
+                <rules>
+                  <rule name="NodeInspector" patternSyntax="ECMAScript" stopProcessing="true">
+                    <match url="^server.js\/debug[\/]?" />
+                  </rule>
+                  <rule name="StaticContent">
+                    <action type="Rewrite" url="public{REQUEST_URI}" />
+                    <conditions>
+                      <add input="{REQUEST_FILENAME}" matchType="IsFile" negate="True" />
+                    </conditions>
+                  </rule>
+                  <rule name="DynamicContent">
+                    <conditions>
+                      <add input="{REQUEST_FILENAME}" matchType="IsFile" negate="True" />
+                    </conditions>
+                    <action type="Rewrite" url="server.js" />
+                  </rule>
+                </rules>
+              </rewrite>
+              <security>
+                <requestFiltering>
+                  <hiddenSegments>
+                    <remove segment="bin" />
+                  </hiddenSegments>
+                </requestFiltering>
+              </security>
+              <httpErrors existingResponse="PassThrough" />
+              <iisnode node_env="production" nodeProcessCommandLine="node.exe" />
+            </system.webServer>
+          </configuration>
+          EOF
+
+      - name: Install dependencies 
+        run: pnpm install --no-frozen-lockfile
+
+      - name: Build Next.js app
+        run: pnpm build
+
+      - name: Prepare deployment package
+        run: |
+          # Replace package.json with the Azure-optimized version
+          mv azure-package.json package.json
+          
+          # Create startup command file
+          echo "node server.js" > startup.txt
 
       - name: Zip artifact for deployment
-        run: zip -r release.zip . -x "node_modules/*" ".*" "*.zip" "package.json.original"
+        run: |
+          # Include only necessary files
+          zip -r release.zip .next package.json .npmrc server.js web.config startup.txt public node_modules
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4
@@ -131,7 +181,7 @@ jobs:
 
       - name: Unzip artifact for deployment
         run: unzip release.zip
-      
+          
       - name: Login to Azure
         uses: azure/login@v2
         with:
