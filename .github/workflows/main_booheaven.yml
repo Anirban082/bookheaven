@@ -52,7 +52,7 @@ jobs:
           echo "UPLOADTHING_TOKEN=${{ secrets.UPLOADTHING_TOKEN }}" >> .env.production
           echo "NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=${{ secrets.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY }}" >> .env.production
           echo "NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=${{ secrets.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY }}" >> .env.production
-          echo "NEXT_PUBLIC_APP_URL=https://bookheaven.azurewebsites.net" >> .env.production
+          echo "NEXT_PUBLIC_APP_URL=https://booheaven.azurewebsites.net" >> .env.production
           echo "NODE_ENV=production" >> .env.production
 
       - name: Install dependencies
