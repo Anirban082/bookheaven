@@ -1,39 +1,37 @@
-import type { NextConfig } from 'next'
+// next.config.ts
+import { type NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
-  experimental: {
-    viewTransition: true
-  },
-  /* config options here */
+  output: 'export',  // Enable static exports for Azure Static Web Apps
+  distDir: 'out',    // Output directory for the static build
   images: {
-    formats: ['image/avif', 'image/webp'],
+    unoptimized: true, // Required for static export
     remotePatterns: [
       {
         protocol: 'https',
-        hostname: 'i.pravatar.cc',
-        pathname: '/**'
+        hostname: '**', // Allow all domains for images
       },
-      {
-        protocol: 'https',
-        hostname: 'images.unsplash.com',
-        pathname: '/**'
-      },
-      {
-        protocol: 'https',
-        hostname: 'covers.openlibrary.org',
-        pathname: '/**'
-      },
-      {
-        protocol: 'https',
-        hostname: '**'
-      }
     ],
-    deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048],
-    imageSizes: [16, 32, 48, 64, 96, 128, 256, 384]
   },
-  eslint: {
-    ignoreDuringBuilds: true
-  }
-}
+  // Handle API routes appropriately
+  rewrites: async () => {
+    return {
+      fallback: [
+        // Rewrite API calls to Azure Functions if you're using them
+        {
+          source: '/api/:path*',
+          destination: '/api/:path*',
+        },
+      ],
+    };
+  },
+  // Additional experimental features supported by Next.js 15
+  experimental: {
+    // Enable if you're using server actions with Static Export
+    serverActions: {
+      allowedOrigins: ['localhost:3000', '*.azurestaticapps.net'],
+    },
+  },
+};
 
-export default nextConfig
+export default nextConfig;
