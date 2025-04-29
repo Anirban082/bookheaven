@@ -58,7 +58,7 @@ jobs:
       - name: Create Azure deployment files
         run: |
           # Create a custom package.json for Azure deployment
-          jq '.packageManager = undefined | .scripts.start = "node server.js" | .dependencies."next-view-transitions" = "0.3.4" | .resolutions = {"next-view-transitions": "0.3.4", "cmdk": "^1.0.0"}' package.json > azure-package.json
+          jq 'del(.packageManager) | .scripts.start = "node server.js" | .dependencies."next-view-transitions" = "0.3.4" | .resolutions = {"next-view-transitions": "0.3.4", "cmdk": "^1.0.0"}' package.json > azure-package.json
           
           # Create .npmrc to force installation
           echo "legacy-peer-deps=true" > .npmrc
@@ -154,8 +154,11 @@ jobs:
 
       - name: Zip artifact for deployment
         run: |
-          # Include only necessary files
-          zip -r release.zip .next package.json .npmrc server.js web.config startup.txt public node_modules
+          # Build the Next.js app with the Next Export option
+          mkdir -p node_modules
+          
+          # Include only necessary files for runtime
+          zip -r release.zip .next package.json .npmrc server.js web.config public lib app components middleware.ts next.config.ts
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4
