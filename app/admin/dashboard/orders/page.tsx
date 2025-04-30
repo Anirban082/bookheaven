@@ -23,7 +23,7 @@ export default async function AdminOrdersPage({
   
   // Get admin user IDs if we're filtering to show only non-admin orders
   let adminUserIds: string[] = []
-  let userIdFilter: string[] | undefined = undefined
+  const userIdFilter: string[] | undefined = undefined
   
   if (filterMode === 'user') {
     adminUserIds = await getAdminUserIds()

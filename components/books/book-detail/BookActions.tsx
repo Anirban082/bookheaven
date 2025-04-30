@@ -8,7 +8,6 @@ import {
   BookX,
   Bookmark,
   ListPlusIcon,
-  Share2Icon,
   ShoppingCart,
   StarIcon,
   X
@@ -82,14 +81,6 @@ export default function BookActions({ editionId }: BookActionsProps) {
       addItem(getProductFromBookEdition(bookData.edition, bookData.work), { count: 1 })
       toast.success(`${bookData.work.title} added to cart`)
     }
-  }
-
-  // Format price display
-  const formatPrice = (price: number) => {
-    return new Intl.NumberFormat('en-IN', {
-      style: 'currency',
-      currency: 'INR',
-    }).format(price / 100)
   }
 
   // Calculate sale status and prices

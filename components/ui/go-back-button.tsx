@@ -27,6 +27,7 @@ export function GoBackButton({ href = '/admin/dashboard/books' }: GoBackButtonPr
       }
     } catch (error) {
       // If anything goes wrong, use the fallback
+      console.error('Error navigating back:', error)
       router.push('/admin/dashboard/books')
     }
   }

@@ -10,6 +10,7 @@ import Stripe from 'stripe'
 import { env } from '@/env'
 import { getAuthenticatedUserId } from './actions.helpers'
 import { eq } from 'drizzle-orm'
+import { ShippingAddressType } from './orders.actions'
 
 const stripe = new Stripe(env.STRIPE_SECRET_KEY)
 
@@ -96,7 +97,7 @@ export const retrieveCheckoutSession = async (sessionId: string) => {
   }
 }
 
-export const updateOrderShippingAddress = async (sessionId: string, shippingAddress: any) => {
+export const updateOrderShippingAddress = async (sessionId: string, shippingAddress: ShippingAddressType) => {
   if (!sessionId || !shippingAddress) return null
 
   try {

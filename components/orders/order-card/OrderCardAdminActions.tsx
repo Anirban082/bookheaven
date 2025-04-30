@@ -7,13 +7,11 @@ import { UpdateOrderStatusButton } from '@/components/orders/order-status/Update
 interface OrderCardAdminActionsProps {
   orderId: string
   status: OrderStatus
-  inline?: boolean
 }
 
 export function OrderCardAdminActions({
   orderId,
   status,
-  inline = false
 }: OrderCardAdminActionsProps) {
   if (status === 'Created') {
     return (

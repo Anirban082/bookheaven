@@ -32,6 +32,7 @@ export function GoBackButton({
       }
     } catch (error) {
       // If anything goes wrong, use the fallback
+      console.error('Error navigating back:', error)
       router.push(fallbackPath)
     }
   }, [onClick, router, fallbackPath])

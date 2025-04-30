@@ -1,4 +1,3 @@
-import { z } from 'zod'
 import { createSearchParamsCache, parseAsString } from 'nuqs/server'
 
 // Define schema for user search parameters

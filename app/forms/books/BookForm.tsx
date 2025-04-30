@@ -44,7 +44,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { format } from 'date-fns'
 import { CalendarIcon, X } from 'lucide-react'
 import Image from 'next/image'
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
 import { z } from 'zod'
@@ -119,6 +119,35 @@ export function BookForm({
   const [createdEditionId, setCreatedEditionId] = useState<string | null>(
     initialData?.edition.id || null
   )
+  const [newTagName, setNewTagName] = useState("")
+
+  const handleCreateTag = async (tagName: string) => {
+    try {
+      const trimmedTagName = tagName.trim()
+      if (!trimmedTagName) return
+      
+      // Check if we already have this tag selected
+      if (selectedTags.some(t => t.name.toLowerCase() === trimmedTagName.toLowerCase())) {
+        toast.info("This tag is already added")
+        return
+      }
+      
+      // Create the new tag on the server
+      const newTag = await createTag(trimmedTagName)
+      if (newTag) {
+        // Add to selected tags
+        setSelectedTags([...selectedTags, newTag])
+        // Update the form with the new tag ID
+        const currentTagIds = form.getValues('tagIds')
+        form.setValue('tagIds', [...currentTagIds, newTag.id])
+        toast.success(`Added new tag: ${trimmedTagName}`)
+        setNewTagName("")
+      }
+    } catch (error) {
+      console.error('Failed to create tag:', error)
+      toast.error('Failed to create tag')
+    }
+  }
 
   const form = useForm<BookFormData>({
     resolver: zodResolver(bookFormSchema),
@@ -408,34 +437,6 @@ export function BookForm({
                 control={form.control}
                 name='tagIds'
                 render={({ field }) => {
-                  const [newTagName, setNewTagName] = useState("")
-                  
-                  const handleCreateTag = async () => {
-                    try {
-                      const tagName = newTagName.trim()
-                      if (!tagName) return
-                      
-                      // Check if we already have this tag selected
-                      if (selectedTags.some(t => t.name.toLowerCase() === tagName.toLowerCase())) {
-                        toast.info("This tag is already added")
-                        return
-                      }
-                      
-                      // Create the new tag on the server
-                      const newTag = await createTag(tagName)
-                      if (newTag) {
-                        // Add to selected tags
-                        setSelectedTags([...selectedTags, newTag])
-                        field.onChange([...field.value, newTag.id])
-                        toast.success(`Added new tag: ${tagName}`)
-                        setNewTagName("")
-                      }
-                    } catch (error) {
-                      console.error('Failed to create tag:', error)
-                      toast.error('Failed to create tag')
-                    }
-                  }
-                  
                   return (
                     <FormItem>
                       <FormLabel>Tags</FormLabel>
@@ -471,7 +472,7 @@ export function BookForm({
                           onKeyDown={(e) => {
                             if (e.key === 'Enter') {
                               e.preventDefault()
-                              handleCreateTag()
+                              handleCreateTag(newTagName)
                             }
                           }}
                           className="flex-1"
@@ -479,7 +480,7 @@ export function BookForm({
                         <Button 
                           type="button"
                           size="sm"
-                          onClick={handleCreateTag}
+                          onClick={() => handleCreateTag(newTagName)}
                           disabled={!newTagName.trim()}
                         >
                           Add Tag
@@ -516,7 +517,7 @@ export function BookForm({
                         </div>
                       </FormControl>
                       <FormDescription className="text-xs mt-1">
-                        Search existing tags or create new ones by typing a name and clicking "Add Tag"
+                        Search existing tags or create new ones by typing a name and clicking Add &quot;Tag&quot;
                       </FormDescription>
                       <FormMessage />
                     </FormItem>

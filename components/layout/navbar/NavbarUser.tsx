@@ -6,7 +6,6 @@ import {
 } from '@clerk/nextjs'
 import { Button } from '@/components/ui/button'
 import { BookOpen, LogIn, UserPlus } from 'lucide-react'
-import { NavbarDashboard } from './NavbarDashboard'
 import { UserProfileMenu } from './UserProfileMenu'
 
 export function NavbarUser() {

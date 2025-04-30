@@ -4,7 +4,7 @@ import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar'
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { Trash2, ShieldAlert, ShieldX, AlertCircle } from 'lucide-react'
+import { Trash2, ShieldAlert, ShieldX } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { deleteUser, removeUserRole, setUserRole } from './actions'
 import {

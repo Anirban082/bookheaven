@@ -19,8 +19,6 @@ export function PaginationControls({
   pageCount,
   totalCount,
   pageSize,
-  baseUrl = '/admin/dashboard/users',
-  searchParams = {}
 }: UserPaginationProps) {
   const [, setSearchParams] = useQueryStates(userSearchParamsSchema, {
     shallow: false

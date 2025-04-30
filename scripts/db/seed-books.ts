@@ -213,7 +213,7 @@ const main = async () => {
           pageCount: book.pageCount,
           thumbnailUrl: book.thumbnail,
           smallThumbnailUrl: book.thumbnailSmall,
-          price: faker.commerce.price({ min: 9, max: 50, dec: 0 }),
+          price: faker.commerce.price({ min: 500, max: 3000, dec: 0 }),
           stockQuantity: faker.number.int({ min: 10, max: 200 })
         })
         .returning()

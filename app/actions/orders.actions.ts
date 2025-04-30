@@ -217,7 +217,6 @@ export async function getOrderById(orderId: string): Promise<FetchedOrderRelatio
  * Only admins can update order status
  */
 export async function updateOrderStatus(orderId: string, status: OrderStatus) {
-  const user = await getAuthenticatedUserId()
   const isAdmin = await checkRole('admin')
   
   if (!isAdmin) {

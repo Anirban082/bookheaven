@@ -2,7 +2,6 @@
 
 import { ThemeToggle } from './ThemeToggle'
 import { cn } from '@/lib/utils'
-import { Link } from 'next-view-transitions'
 
 import { usePathname } from 'next/navigation'
 import { Button } from '@/components/ui/button'
@@ -118,6 +117,7 @@ function MobileNavLink({
         className='flex flex-col items-center gap-2 transition-colors duration-200'
         onClick={(e) => {
           // Ensure the default navigation works
+          e.preventDefault()
           if (onClick) onClick();
         }}
       >

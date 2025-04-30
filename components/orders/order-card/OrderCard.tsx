@@ -139,7 +139,7 @@ export function OrderCard({ order, isAdmin = false }: OrderCardProps) {
       <CardFooter className='flex flex-col gap-3 mt-auto'>
         <div className="flex justify-end gap-3 w-full flex-wrap">
           {isAdmin && order.status !== 'Cancelled' && order.status !== 'Delivered' && (
-            <OrderCardAdminActions orderId={order.id} status={order.status} inline={true} />
+            <OrderCardAdminActions orderId={order.id} status={order.status} />
           )}
           {order.status !== 'Cancelled' && order.status !== 'Delivered' && (
             <OrderCardCancelButton orderId={order.id} />

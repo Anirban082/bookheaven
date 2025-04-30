@@ -11,7 +11,7 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { UserButton } from '@clerk/nextjs'
 import Link from 'next/link'
-import { LayoutDashboard, User, Settings, LogOut, CreditCard } from 'lucide-react'
+import { LayoutDashboard,LogOut, CreditCard } from 'lucide-react'
 import { useClerk } from '@clerk/nextjs'
 
 export function UserProfileMenu() {
