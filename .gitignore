@@ -8,6 +8,7 @@ node_modules
 coverage
 .nyc_output
 
+
 # next.js
 .next/
 out/
